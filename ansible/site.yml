@@ -27,15 +27,15 @@
   hosts: kube_workers
   become: true
   roles:
-    - jenkins
-  when: node_role == 'jenkins'
+    - role: jenkins
+      when: node_role == 'jenkins'
 
 - name: Configure Nexus worker
   hosts: kube_workers
   become: true
   roles:
-    - nexus
-  when: node_role == 'nexus'
+    - role: nexus
+      when: node_role == 'nexus'
 
 - name: Configure Kubernetes nodes
   hosts: kube_control_plane:kube_workers
