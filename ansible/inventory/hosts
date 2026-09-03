@@ -1,0 +1,17 @@
+[terraform]
+ansible_host=
+
+[ansible]
+ansible_host=
+
+[kube_control_plane]
+ansible_host=
+
+[kube_workers]
+ ansible_host= node_role=jenkins
+ ansible_host= node_role=maven
+ ansible_host= node_role=nexus
+ ansible_host= node_role=web
+
+[all:vars]
+ansible_user=ubuntu
