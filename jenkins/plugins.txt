@@ -1,0 +1,11 @@
+workflow-aggregator
+git
+github
+pipeline-stage-view
+credentials-binding
+docker-workflow
+kubernetes
+kubernetes-cli
+configuration-as-code
+ansible
+maven-plugin

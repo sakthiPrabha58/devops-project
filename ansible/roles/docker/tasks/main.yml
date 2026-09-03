@@ -1,0 +1,27 @@
+---
+- name: Install Docker
+  apt:
+    name:
+      - docker.io
+      - containerd
+    state: present
+    update_cache: true
+
+- name: Enable Docker
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Add ubuntu to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: true
+
+- name: Configure containerd for Kubernetes
+  shell: |
+    containerd config default > /etc/containerd/config.toml
+    sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+    systemctl restart containerd
+  changed_when: true

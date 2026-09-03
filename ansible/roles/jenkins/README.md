@@ -1,0 +1,1 @@
+Run this role against the Jenkins worker/controller host after Kubernetes is ready. The role installs Jenkins but does not automate initial admin-password retrieval or plugin configuration. Those are intentionally completed through Jenkins Configuration as Code or the UI after secrets are supplied.

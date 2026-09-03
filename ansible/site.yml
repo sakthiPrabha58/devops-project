@@ -1,0 +1,51 @@
+---
+- name: Configure all EC2 nodes
+  hosts: all
+  become: true
+  roles:
+    - common
+    - docker
+
+- name: Configure Java and Maven worker
+  hosts: kube_workers
+  become: true
+  roles:
+    - java
+
+- name: Configure Maven worker
+  hosts: kube_workers
+  become: true
+  tasks:
+    - name: Install Maven on Maven worker
+      apt:
+        name: maven
+        state: present
+        update_cache: true
+      when: node_role == 'maven'
+
+- name: Configure Jenkins worker
+  hosts: kube_workers
+  become: true
+  roles:
+    - jenkins
+  when: node_role == 'jenkins'
+
+- name: Configure Nexus worker
+  hosts: kube_workers
+  become: true
+  roles:
+    - nexus
+  when: node_role == 'nexus'
+
+- name: Configure Kubernetes nodes
+  hosts: kube_control_plane:kube_workers
+  become: true
+  roles:
+    - kubernetes
+
+- name: Install kubectl on management/ansible server
+  hosts: ansible
+  become: true
+  roles:
+    - kubectl
+    - awscli

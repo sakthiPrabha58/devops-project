@@ -1,0 +1,91 @@
+pipeline {
+    agent none
+
+    environment {
+        APP_NAME = 'devshop'
+        NEXUS_HOST = credentials('nexus-host')
+        NEXUS_MAVEN_REPO = 'maven-releases'
+        NEXUS_DOCKER_REPO = '8082'
+        IMAGE = "${NEXUS_HOST}:${NEXUS_DOCKER_REPO}/${APP_NAME}:${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            agent { label 'maven' }
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build and Test') {
+            agent { label 'maven' }
+            steps {
+                dir('application') {
+                    sh 'mvn -B clean test package'
+                }
+            }
+        }
+
+        stage('Publish Maven Artifact') {
+            agent { label 'maven' }
+            steps {
+                dir('application') {
+                    sh '''
+                      mvn -B deploy \
+                        -DaltDeploymentRepository=nexus::default::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/
+                    '''
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            agent { label 'docker' }
+            steps {
+                dir('application') {
+                    sh 'docker build -t ${IMAGE} .'
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            agent { label 'docker' }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-docker',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+                    sh '''
+                      echo "$NEXUS_PASS" | docker login ${NEXUS_HOST}:8082 -u "$NEXUS_USER" --password-stdin
+                      docker push ${IMAGE}
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            agent { label 'jenkins' }
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                      export KUBECONFIG="$KUBECONFIG_FILE"
+                      kubectl apply -f kubernetes/namespace.yaml
+                      kubectl apply -f kubernetes/configmap.yaml
+                      kubectl apply -f kubernetes/service.yaml
+                      kubectl apply -f kubernetes/hpa.yaml
+                      sed \
+                        -e "s|NEXUS_HOST:8082/devshop:BUILD_NUMBER|${IMAGE}|g" \
+                        kubernetes/deployment.yaml | kubectl apply -f -
+                      kubectl -n devshop rollout status deployment/devshop --timeout=180s
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Build ${BUILD_NUMBER} finished with status: ${currentBuild.currentResult}"
+        }
+    }
+}

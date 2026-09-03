@@ -1,0 +1,12 @@
+aws_region            = "ap-south-1"
+project_name          = "devshop"
+environment           = "dev"
+key_name              = "YOUR_EXISTING_EC2_KEYPAIR"
+admin_cidr            = "YOUR.PUBLIC.IP.ADDRESS/32"
+domain_name           = ""
+instance_type         = "t3.medium"
+worker_instance_type  = "t3.medium"
+worker_count          = 5
+rds_username          = "devshop"
+rds_password          = "CHANGE_ME_STRONG_PASSWORD"
+rds_db_name           = "devshop"

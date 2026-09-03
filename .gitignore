@@ -1,0 +1,22 @@
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.pem
+*.key
+*.crt
+terraform.tfvars
+ansible/inventory/hosts.ini
+kubernetes/secret.yaml
+.env
+target/
+
+# Local infrastructure/secrets
+terraform/terraform.tfstate*
+terraform/.terraform/
+terraform/terraform.tfvars
+ansible/inventory/hosts.ini
+ansible/join-command.sh
+kubernetes/secret.yaml
+*.pem
+kubeconfig*

@@ -1,0 +1,20 @@
+---
+- name: Create Nexus directory
+  file:
+    path: /opt/nexus
+    state: directory
+    owner: 200
+    group: 200
+    mode: "0755"
+
+- name: Run Nexus container
+  community.docker.docker_container:
+    name: nexus
+    image: sonatype/nexus3:latest
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "8081:8081"
+      - "8082:8082"
+    volumes:
+      - /opt/nexus:/nexus-data

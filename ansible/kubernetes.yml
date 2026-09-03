@@ -1,0 +1,65 @@
+---
+- name: Install Kubernetes prerequisites on all cluster nodes
+  hosts: kube_control_plane:kube_workers
+  become: true
+  roles:
+    - common
+    - docker
+    - kubernetes
+
+- name: Initialize control plane
+  hosts: kube_control_plane
+  become: true
+  tasks:
+    - name: Initialize cluster
+      shell: |
+        kubeadm init --pod-network-cidr=10.244.0.0/16
+      args:
+        creates: /etc/kubernetes/admin.conf
+
+    - name: Create kube config directory
+      become_user: ubuntu
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        mode: "0755"
+
+    - name: Copy admin kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: true
+        owner: ubuntu
+        group: ubuntu
+        mode: "0600"
+
+    - name: Install Flannel
+      become_user: ubuntu
+      shell: kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+
+    - name: Generate worker join command
+      shell: kubeadm token create --print-join-command
+      register: join_command
+
+    - name: Save join command
+      delegate_to: localhost
+      become: false
+      copy:
+        content: "{{ join_command.stdout }}"
+        dest: ./join-command.sh
+        mode: "0700"
+
+- name: Join workers
+  hosts: kube_workers
+  become: true
+  tasks:
+    - name: Copy join command
+      copy:
+        src: ./join-command.sh
+        dest: /tmp/join-command.sh
+        mode: "0700"
+
+    - name: Join Kubernetes
+      shell: /tmp/join-command.sh
+      args:
+        creates: /etc/kubernetes/kubelet.conf

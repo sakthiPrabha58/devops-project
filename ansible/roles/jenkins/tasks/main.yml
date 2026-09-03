@@ -1,0 +1,52 @@
+---
+- name: Install Java
+  apt:
+    name: openjdk-21-jdk
+    state: present
+
+- name: Add Jenkins repository key
+  shell: |
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key -o /etc/apt/keyrings/jenkins-keyring.asc
+    chmod 644 /etc/apt/keyrings/jenkins-keyring.asc
+  args:
+    creates: /etc/apt/keyrings/jenkins-keyring.asc
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    filename: jenkins
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    update_cache: true
+    state: present
+
+- name: Enable Jenkins
+  systemd:
+    name: jenkins
+    enabled: true
+    state: started
+
+- name: Install Maven on Jenkins controller
+  apt:
+    name: maven
+    state: present
+    update_cache: true
+
+- name: Install kubectl on Jenkins controller
+  include_role:
+    name: kubectl
+
+- name: Add Jenkins user to docker group
+  user:
+    name: jenkins
+    groups: docker
+    append: true
+
+- name: Restart Jenkins after docker group membership change
+  systemd:
+    name: jenkins
+    state: restarted
