@@ -5,12 +5,12 @@ variable "aws_region" {
 
 variable "project_name" {
   type    = string
-  default = "devshop"
+  default = "ecommerce"
 }
 
 variable "environment" {
   type    = string
-  default = "dev"
+  default = "devops"
 }
 
 variable "vpc_cidr" {
@@ -31,22 +31,22 @@ variable "admin_cidr" {
 variable "domain_name" {
   description = "Optional Route53 hosted zone domain. Leave empty to skip Route53 records."
   type        = string
-  default     = ""
+  default     = "sjss-dev.shop"
 }
 
 variable "instance_type" {
   type    = string
-  default = "t3.medium"
+  default = "m7i-flex.large"
 }
 
 variable "worker_instance_type" {
   type    = string
-  default = "t3.medium"
+  default = "c7i-flex.large"
 }
 
 variable "rds_username" {
   type    = string
-  default = "devshop"
+  default = "sakthi58"
 }
 
 variable "rds_password" {
@@ -57,10 +57,10 @@ variable "rds_password" {
 
 variable "rds_db_name" {
   type    = string
-  default = "devshop"
+  default = "shop"
 }
 
 variable "worker_count" {
   type    = number
-  default = 5
+  default = 4
 }
