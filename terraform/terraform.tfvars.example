@@ -8,5 +8,5 @@ instance_type         = "m7i-flex.large"
 worker_instance_type  = "c7i-flex.large"
 worker_count          = 4
 rds_username          = "sakthi"
-rds_password          = "sh0p~rds"
+rds_password          = "*******"
 rds_db_name           = "shop"
