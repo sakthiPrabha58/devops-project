@@ -7,6 +7,6 @@ domain_name           = "sjss-dev.shop"
 instance_type         = "m7i-flex.large"
 worker_instance_type  = "c7i-flex.large"
 worker_count          = 4
-rds_username          = "sakthi"
+rds_username          = "sakthi58"
 rds_password          = "*******"
 rds_db_name           = "shop"
