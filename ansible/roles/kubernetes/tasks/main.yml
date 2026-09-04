@@ -1,25 +1,62 @@
 ---
 - name: Disable swap
-  shell: |
+  ansible.builtin.shell: |
     swapoff -a
     sed -i '/ swap / s/^/#/' /etc/fstab
   changed_when: true
 
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+    state: present
+    update_cache: true
+
+- name: Create Kubernetes keyring directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Kubernetes repository signing key
+  ansible.builtin.shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key \
+      | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Add Kubernetes APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /"
+    state: present
+    filename: kubernetes
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+
 - name: Install Kubernetes packages
-  apt:
+  ansible.builtin.apt:
     name:
       - kubelet
       - kubeadm
       - kubectl
     state: present
-    update_cache: true
 
 - name: Hold Kubernetes packages
-  shell: apt-mark hold kubelet kubeadm kubectl
-  changed_when: false
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
 
 - name: Enable kubelet
-  systemd:
+  ansible.builtin.systemd:
     name: kubelet
     enabled: true
     state: started
