@@ -31,7 +31,7 @@ pipeline {
             steps { 
                 dir('application') { 
                     withCredentials([ 
-                        usernamePassword( credentialsId: 'nexus-host',
+                        usernamePassword( credentialsId: 'nexus-docker',
                                          usernameVariable: 'NEXUS_USERNAME',
                                          passwordVariable: 'NEXUS_PASSWORD' 
                                         ) 
