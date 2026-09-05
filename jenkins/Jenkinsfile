@@ -26,16 +26,35 @@ pipeline {
             }
         }
 
-        stage('Publish Maven Artifact') {
-            agent { label 'maven' }
-            steps {
-                dir('application') {
-                    sh '''
-                      mvn -B deploy \
-                        -DaltDeploymentRepository=nexus::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/
-                    '''
-                }
-            }
+        stage('Publish Maven Artifact') { 
+            agent { label 'maven' } 
+            steps { 
+                dir('application') { 
+                    withCredentials([ 
+                        usernamePassword( credentialsId: 'nexus-maven',
+                                         usernameVariable: 'NEXUS_USERNAME',
+                                         passwordVariable: 'NEXUS_PASSWORD' 
+                                        ) 
+                    ]) {
+                        sh ''' cat > settings.xml <<EOF
+        <settings>
+                <servers> 
+                        <server> 
+                        <id>nexus</id> 
+                        <username>${NEXUS_USERNAME}</username>
+                        <password>${NEXUS_PASSWORD}</password>
+                        </server> 
+                </servers> 
+        </settings> 
+                    EOF 
+                    
+                    mvn -B deploy \
+                    -s settings.xml \ 
+                    -DaltDeploymentRepository=nexus::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/ 
+                    ''' 
+                    }
+                } 
+            } 
         }
 
         stage('Docker Build') {
