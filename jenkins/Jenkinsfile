@@ -32,7 +32,7 @@ pipeline {
                 dir('application') {
                     sh '''
                       mvn -B deploy \
-                        -DaltDeploymentRepository=nexus::default::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/
+                        -DaltDeploymentRepository=nexus::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/
                     '''
                 }
             }
