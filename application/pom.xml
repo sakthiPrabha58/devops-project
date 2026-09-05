@@ -53,11 +53,11 @@
     <repository>
         <id>nexus</id>
         <name>Nexus Releases</name>
-        <url>http://13.201.52.50:8081/repository/maven-releases/</url>
+        <url>http://13.206.143.43:8081/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
         <id>nexus-snapshots</id>
-        <url>http://13.201.52.50:8081/repository/maven-snapshots/</url>
+        <url>http://13.206.143.43:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
 </distributionManagement>
 </project>
