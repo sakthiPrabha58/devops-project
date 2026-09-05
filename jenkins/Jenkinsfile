@@ -75,6 +75,8 @@ pipeline {
                     passwordVariable: 'NEXUS_PASS'
                 )]) {
                     sh '''
+                      echo "===== HOSTNAME ====="
+                      hostname
                       echo "$NEXUS_PASS" | docker login ${NEXUS_HOST}:8082 -u "$NEXUS_USER" --password-stdin
                       docker push ${IMAGE}
                     '''
