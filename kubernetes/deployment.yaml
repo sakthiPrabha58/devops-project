@@ -17,6 +17,8 @@ spec:
     spec:
       nodeSelector:
         node-role: web
+      imagePullSecrets:
+        - name: nexus-registry-secret
       containers:
         - name: devshop
           image: NEXUS_HOST:8082/devshop:BUILD_NUMBER
