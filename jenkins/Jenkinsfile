@@ -49,7 +49,7 @@ pipeline {
                     EOF 
                     
                     mvn -B deploy \
-                    -s settings.xml \ 
+                    -s settings.xml \
                     -DaltDeploymentRepository=nexus::http://${NEXUS_HOST}:8081/repository/${NEXUS_MAVEN_REPO}/ 
                     ''' 
                     }
